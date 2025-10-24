@@ -4,20 +4,34 @@ const typedef = @import("./typedef.zig");
 
 pub fn main() !void {
     const alloc = std.heap.page_allocator;
+    var args = std.process.args();
+    var sort_type: u8 = 0;
 
     var my_array: typedef.arrayConfig = typedef.arrayConfig{ .array = &[_]i32{}, .array_size = 0 };
 
-    my_array.array_size = 6;
-    my_array.array = try alloc.alloc(i32, my_array.array_size);
+    // Skip program path (args[0])
+    _ = args.next();
 
-    my_array.array[0] = 4;
-    my_array.array[1] = 3;
-    my_array.array[2] = 2;
-    my_array.array[3] = 1;
-    my_array.array[4] = 5;
-    my_array.array[5] = 15;
+    while (args.next()) |arg| {
+        if (std.mem.eql(u8, arg, "--bubble_sort")) {
+            sort_type = 1;
+        } else if (std.mem.eql(u8, arg, "--selection_sort")) {
+            sort_type = 2;
+        } else {
+            std.debug.print("Unknown sort type\n", .{});
+        }
+        break;
+    }
 
-    try sort.bubble_sort(my_array);
+    my_array.array = try alloc.alloc(i32, 5);
+    while (args.next()) |arg| {
+        my_array.array[my_array.array_size] = try std.fmt.parseInt(i32, arg, 10);
+        my_array.array_size += 1;
+    }
 
-    try sort.selection_sort(my_array);
+    switch (sort_type) {
+        1 => try sort.bubble_sort(my_array),
+        2 => try sort.selection_sort(my_array),
+        else => std.debug.print("Unknown sort type\n", .{}),
+    }
 }
