@@ -34,4 +34,6 @@ pub fn main() !void {
         2 => try sort.selection_sort(my_array),
         else => std.debug.print("Unknown sort type\n", .{}),
     }
+
+    alloc.free(my_array.array);
 }
